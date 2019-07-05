@@ -1,0 +1,85 @@
+version: '3'
+services:
+  nginx:
+    privileged: true
+    image: nginx:1.15.3-alpine
+    ports:
+      - "80:80"
+    #volumes:
+    #  - ./.friend/logs/nginx:/var/log/nginx
+    deploy:
+      mode: replicated
+      replicas: 2
+
+  mysql:
+    privileged: true
+    image: mysql:5.7.14
+    #build:
+    #  context: ./
+    #  dockerfile: ./friend-docker/friend-mysql/mysql-Dockerfile
+    environment:
+      MYSQL_DATABASE: friend
+      MYSQL_ROOT_PASSWORD: mobile#123
+      MYSQL_ROOT_HOST: '%'
+      TZ: Asia/Shanghai
+    ports:
+      - 3306:3306
+    #volumes:
+    #  - ./.friend/mysql/mysql_data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:4.0.10
+    privileged: true
+      #volumes:
+      # ./data/db 数据库文件存放地址，根据需要修改为本地地址
+      #- '/d/technology/web/Server/EasyMock/easy-mock-docker/data/db:/data/db'
+      #- '~/.friend/mongo/data/db:/data/db'
+      
+  redis:
+    image: redis:4.0.6
+    privileged: true
+    command: redis-server --appendonly yes
+    #volumes:
+      # ./data/redis redis 数据文件存放地址，根据需要修改为本地地址
+      #- './.friend/redis:/data'
+
+
+  server:
+    image: 192.168.99.100:5000/friend-server
+    privileged: true
+    working_dir: /app
+    #volumes:
+    #  - ./friend-server:/app
+    #  - ./.m2:/root/.m2
+    #  - ./.friend/logs/server:/app/log
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 88:88
+
+#  admin:
+#    build:
+#      context: ./
+#      dockerfile: ./friend-docker/friend-admin/friend-admin-Dockerfile
+#      args:
+#        BASE_URL: ${BASE_URL}
+#    environment:
+#      TZ: Asia/Shanghai
+#    expose:
+#    - "3001"
+#
+#  front:
+#    build:
+#      context: ./
+#      dockerfile: ./friend-docker/friend-front-Dockerfile
+#      args:
+#        BASE_URL: ${BASE_URL}
+#        PROXY_HOST: ${PROXY_HOST}
+#        PROXY_PORT: ${PROXY_PORT}
+#    environment:
+#      TZ: Asia/Shanghai
+#    expose:
+#    - "3000"
+

@@ -1,0 +1,107 @@
+version: '3'
+services:
+  friend-nginx:
+    container_name: friend-nginx
+    privileged: true
+    build:
+      context: ./
+      dockerfile: ./friend-docker/friend-nginx/nginx-Dockerfile
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "80:80"
+    #volumes:
+    #  - ./.friend/logs/nginx:/var/log/nginx
+    depends_on:
+      - friend-server
+      #- friend-admin
+      #- friend-front
+
+  friend-mysql:
+    container_name: friend-mysql
+    privileged: true
+    build:
+      context: ./
+      dockerfile: ./friend-docker/friend-mysql/mysql-Dockerfile
+    environment:
+      MYSQL_DATABASE: friend
+      MYSQL_ROOT_PASSWORD: mobile#123
+      MYSQL_ROOT_HOST: '%'
+      TZ: Asia/Shanghai
+    expose:
+      - "3306"
+    ports:
+      - 3306:3306
+    #volumes:
+    #  - ./.friend/mysql/mysql_data:/var/lib/mysql
+    restart: always
+
+  friend-mongodb:
+    image: mongo:4.0.10
+    privileged: true
+      #volumes:
+      # ./data/db 数据库文件存放地址，根据需要修改为本地地址
+      #- '/d/technology/web/Server/EasyMock/easy-mock-docker/data/db:/data/db'
+      #- '~/.friend/mongo/data/db:/data/db'
+    restart: always
+
+  friend-redis:
+    image: redis:4.0.6
+    privileged: true
+    command: redis-server --appendonly yes
+    volumes:
+      # ./data/redis redis 数据文件存放地址，根据需要修改为本地地址
+      - './.friend/redis:/data'
+    restart: always
+
+
+  friend-server:
+    container_name: friend-server
+    privileged: true
+    build:
+      context: ./
+      dockerfile: ./friend-docker/friend-server-Dockerfile
+    working_dir: /app
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./friend-server:/app
+      - ./.m2:/root/.m2
+      - ./.friend/logs/server:/app/log
+    expose:
+      - "9090"
+    ports:
+      - 9090:9090
+    command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker -Dmaven.test.skip=true
+    links:
+      - friend-mysql
+    depends_on:
+      - friend-mysql
+    restart: always
+
+#  friend-admin:
+#    container_name: friend-admin
+#    build:
+#      context: ./
+#      dockerfile: ./friend-docker/friend-admin/friend-admin-Dockerfile
+#      args:
+#        BASE_URL: ${BASE_URL}
+#    environment:
+#      TZ: Asia/Shanghai
+#    expose:
+#    - "3001"
+#
+#  friend-front:
+#    container_name: friend-front
+#    build:
+#      context: ./
+#      dockerfile: ./friend-docker/friend-front-Dockerfile
+#      args:
+#        BASE_URL: ${BASE_URL}
+#        PROXY_HOST: ${PROXY_HOST}
+#        PROXY_PORT: ${PROXY_PORT}
+#    environment:
+#      TZ: Asia/Shanghai
+#    expose:
+#    - "3000"
+

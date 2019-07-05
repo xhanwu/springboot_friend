@@ -1,0 +1,2 @@
+2019/06/17 10:13:56 [error] 6#6: *1 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 192.168.99.1, server: , request: "GET / HTTP/1.1", host: "192.168.99.100"
+2019/06/17 10:14:04 [error] 6#6: *3 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 192.168.99.1, server: , request: "GET / HTTP/1.1", host: "192.168.99.100"

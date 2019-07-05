@@ -1,0 +1,5 @@
+FROM maven:3.5.4-jdk-8
+
+MAINTAINER hanwu.xie xhanwu@sina.com
+
+ENV LANG C.UTF-8

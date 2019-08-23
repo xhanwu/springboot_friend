@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<header th:replace="admin/header::header-fragment">
+</header>
+<head>
+    <link rel="stylesheet" th:href="@{/admin/layui-master/dist/css/layui.css}" media="all">
+</head>
+<body class="hold-transition sidebar-mini">
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<div class="wrapper">
+    <!-- 引入页面头header-fragment -->
+    <div th:replace="admin/header::header-nav"></div>
+    <!-- 引入工具栏sidebar-fragment -->
+    <div th:replace="admin/sidebar::sidebar-fragment(${path})"></div>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- Main content -->
+        <div class="content">
+            <div class="container-fluid">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">博客管理</h3>
+                    </div> <!-- /.card-body -->
+                    <table class="layui-hide" id="blog_manager" lay-filter="blog_manager"></table>
+                </div>
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <!-- 引入页脚footer-fragment -->
+    <div th:replace="admin/footer::footer-fragment"></div>
+</div>
+<script th:src="@{/admin/layui-master/dist/layui.js }" charset="utf-8" ></script>
+<script type="text/html" id="blogtoolbar">
+    <div class="demoTable">
+        <div class="layui-btn-container layui-inline">
+            <button class="layui-btn " lay-event="del" >删除</button>
+            <button class="layui-btn " lay-event="update" >编辑</button>
+        </div>
+        搜索ID：
+        <div class="layui-inline">
+            <input class="layui-input" name="id" id="input" autocomplete="off">
+        </div>
+        <div class="layui-btn reloadTable" data-type="reload" id="search_button" lay-event="reload">搜索</div>
+    </div>
+</script>
+<script>
+layui.use('table', function(){
+var table = layui.table;
+table.render({
+elem: '#blog_manager'
+,toolbar: '#blogtoolbar'
+,url: "/admin/blog/blogs"
+,method:"get"
+,cols: [
+    [
+        {type:'radio'}
+        ,{field:'id', title:'微博ID',sort:true}
+        ,{field:'uid', title:'用户ID'}
+        ,{field:'content', title:'微博内容'}
+        ,{field:'createTime', title:'发布时间'}
+        ,{field:'status', title:'数据状态'}
+        ,{field:'isTop', title:'是否置顶'}
+        ,{field:'isComment', title:'是否开启评论'}
+        ,{field:'supportCount', title:'微博点赞数量'}
+        ,{field:'weiboType', title:'文章类型'}
+        ,{field:'crowdId', title:'圈子ID'}
+        ,{field:'repostCount', title:'文章转发数量'}
+        ,{field:'fromDevice', title:'发送平台'}
+        ,{toolbar:'#managers'}
+    ]
+       ]
+,page:true
+,limit:10   //默认的话是10
+,limits:[10,20,30,50]  //数据分页条
+,id:'tableReload'
+});
+/*var $ = layui.$, active = {
+    reload:function () {
+        var reload = $('#input');
+        table.reload('tableReload',{
+        page: {
+            curr:1
+        }
+        ,where:{
+           id:reload.val()
+        }
+        ,url:'blog/blogs/search'
+        ,method:'get'
+        });
+        console.log("test");
+    }
+    /!*.demoTable .reloadTable*!/
+};*/
+   /* $('#search_button').on('click', function(){
+        var type = 'reload';
+        active[type] ? active[type].call(this) : '';
+    });*/
+    table.on('toolbar(blog_manager)', function(obj){
+        var data = obj.data;
+        console.log(data);
+        var checkStatus = table.checkStatus('tableReload'); //获取选中行状态
+        console.log(checkStatus);
+        switch(obj.event){
+            case 'del':
+                var data = checkStatus.data;  //获取选中行数据
+                var list = data[0],id = list['id'];
+                layer.confirm('确认删除用户id为'+id+'的用户？',function delete_confirm(index) {
+                    layer.close(index);
+                    $.ajax({
+                        url: "blog/delete",
+                        type:"POST",
+                        data:{"id":id},
+                        dataType:"json",
+                        success:function () {
+                            console.log("success delete id");
+                            console.log(obj);
+                            table.reload('tableReload',{
+                                where: { //设定异步数据接口的额外参数，任意设
+                                    aaaaaa: 'xxx'
+                                    ,bbb: 'yyy'
+                                    //…
+                                }
+                                ,page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                            });
+                            console.log(index);
+                            //layer.close(index);
+                        },
+                        failed:function(){
+                            console.log("failed delete");
+                            layer.confirm('删除失败', function f(index) {
+                                layer.close(index);
+                            })
+                        }
+                    });
+            });
+                break;
+
+            case 'update':
+                layui.use('layer',function () {
+                    var $ = layui.jquery, layer = layui.layer;
+                    var data = checkStatus.data;  //获取选中行数据
+                    var list = data[0];
+                    var id = list['id'];
+                    var uid = list['uid'];
+                    layer.open({
+                        type: 1,
+                        number:1,
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['600px', '350px'], //宽高
+                        btn: '确定',
+                        content:
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">content</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="content" name="title" required  lay-verify="required" placeholder="content" autocomplete="off" class="layui-input" value='+list['content']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">createTime</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="createTime" name="title" required  lay-verify="required" placeholder="createTime" autocomplete="off" class="layui-input" value='+list['createTime']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">status</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="status" name="title" required  lay-verify="required" placeholder="status" autocomplete="off" class="layui-input" value='+list['status']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">isTop</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="isTop" name="title" required  lay-verify="required" placeholder="isTop" autocomplete="off" class="layui-input" value='+list['isTop']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">isComment</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="isComment" name="title" required  lay-verify="required" placeholder="isComment" autocomplete="off" class="layui-input" value='+list['isComment']+'>'+
+                            '</div>'+'</div>'+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">supportCount</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="supportCount" name="title" required  lay-verify="required" placeholder="supportCount" autocomplete="off" class="layui-input" value='+list['supportCount']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">weiboType</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="weiboType" name="title" required  lay-verify="required" placeholder="weiboType" autocomplete="off" class="layui-input" value='+list['weiboType']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">repostCount</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="repostCount" name="title" required  lay-verify="required" placeholder="repostCount" autocomplete="off" class="layui-input" value='+list['repostCount']+'>'+
+                            '</div>'+'</div>'+
+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">crowdId</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="crowdId" name="title" required  lay-verify="required" placeholder="crowdId" autocomplete="off" class="layui-input" value='+list['crowdId']+'>'+
+                            '</div>'+'</div>',
+                        yes: function (index) {
+                            var content = $('#content').val();
+                            var create_time = $('#create_time').val();
+                            var status = $('#status').val();
+                            var is_top = $('#is_top').val();
+                            var is_comment = $('#is_comment').val();
+                            var support_count = $('#support_count').val();
+                            var type = $('#type').val();
+                            var repost_count = $('#repost_count').val();
+                            var crowd_id = $('#crowd_id').val();
+                            $.ajax({
+                                url: "blog/edit",
+                                type:"POST",
+                                data:{
+                                    "id":id,"uid":uid,"content":content,"create_time":create_time,"status":status,
+                                    "is_top":is_top,"is_comment":is_comment,"support_count":support_count,
+                                    "type":type,"repost_count":repost_count,"crowd_id":crowd_id,
+                                },
+                                dataType:"json",
+                                success:function () {
+                                    console.log("success modified id");
+                                    table.reload('tableReload',{
+                                        where: { //设定异步数据接口的额外参数，任意设
+                                            aaaaaa: 'xxx'
+                                            ,bbb: 'yyy'
+                                            //…
+                                        }
+                                        ,page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                    });
+                                    layer.close(index);
+                                },
+                                failed:function(){
+                                    console.log("failed update");
+                                    layer.confirm('更新失败', function f(index) {
+                                        layer.close(index);
+                                    })
+                                }
+                            });
+                        },
+                    });
+
+                });
+                break;
+
+            case 'reload':
+                function reload() {
+                    var reload = $('#input');
+                    table.reload('tableReload',{
+                        page: {
+                            curr:1
+                        }
+                        ,where:{
+                            id:reload.val()
+                        }
+                        ,url:'blog/blogs/search'
+                        ,method:'get'
+                        ,done:function (res) {
+                            if (res['message']==('操作失敗')){
+                                layer.confirm('不存在此微博', function f(index) {
+                                    layer.close(index);
+                                })
+                            }
+                        }
+                    });
+                    console.log("reload");
+                }
+                reload();
+                break;
+        }
+    });
+});
+</script>
+
+
+
+
+
+<!-- jQuery -->
+<script th:src="@{/admin/plugins/jquery/jquery.min.js}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script th:src="@{/admin/plugins/jQueryUI/jquery-ui.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/admin/dist/js/adminlte.min.js}"></script>
+<!-- jqgrid -->
+<script th:src="@{/admin/plugins/jqgrid-5.3.0/jquery.jqGrid.min.js}"></script>
+<script th:src="@{/admin/plugins/jqgrid-5.3.0/grid.locale-cn.js}"></script>
+<!-- sweetalert -->
+<script th:src="@{/admin/plugins/sweetalert/sweetalert.min.js}"></script>
+<!--<script th:src="@{/admin/dist/js/public.js}"></script>-->
+<script th:src="@{/admin/dist/js/members.js}"></script>
+</body>
+</html>

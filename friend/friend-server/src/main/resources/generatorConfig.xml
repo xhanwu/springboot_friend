@@ -66,6 +66,43 @@
                 enableDeleteByExample="false"  enableSelectByExample="false"
                 selectByExampleQueryId="false">
         </table>
+        <table  tableName="user_info"  domainObjectName="UserInfo"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+        </table>
 
+        <table  tableName="friend_weibo"  domainObjectName="Weibo"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+            <columnOverride column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+        </table>
+	
+        <table  tableName="friend_weibo_comment"  domainObjectName="WeiboComment"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+            <columnOverride column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+        </table>
+
+        <table  tableName="friend_weibo_comment_reply"  domainObjectName="WeiboCommentReply"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+        <columnOverride column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+        </table>
+
+        <table  tableName="friend_weibo_support"  domainObjectName="WeiboSupport"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+        </table>
+
+        <table  tableName="friend_comment_support"  domainObjectName="CommentSupport"
+                enableCountByExample="false"   enableUpdateByExample="false"
+                enableDeleteByExample="false"  enableSelectByExample="false"
+                selectByExampleQueryId="false">
+        </table>
     </context>
 </generatorConfiguration>

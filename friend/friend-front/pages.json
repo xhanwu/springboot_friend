@@ -1,0 +1,201 @@
+{
+    "pages" : [
+        //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+        {
+            "path" : "pages/login/login",
+            "style" : {
+                "navigationBarBackgroundColor" : "white",
+                "navigationBarTitleText" : ""
+            }
+        },
+        {
+            "path" : "pages/login/register",
+            "style" : {
+                "navigationBarTitleText" : "用户注册"
+            }
+        },
+        {
+            "path" : "pages/login/find-pwd",
+            "style" : {
+                "navigationBarTitleText" : "找回密码"
+            }
+        },
+		// home部分页面
+        {
+            "path" : "pages/home/home",
+            "style" : {
+                // "navigationBarTitleText": "即刻",
+                "navigationBarBackgroundColor" : "#FFE411",
+                "app-plus" : {
+                    "bounce" : "none",
+                    "titleNView" : {
+                        // "buttons": [ 
+                        //     {
+                        //         "text": "扫一扫", 
+                        //         "fontSize":"16",
+                        //         "float": "right",
+                        //         "color":"#fff"
+                        //     }
+                        // ],
+                        "searchInput" : {
+                            "align" : "left",
+                            "placeholder" : "发现更多",
+                            "backgroundColor" : "#fff",
+                            "disabled" : "ture"
+                        }
+                    }
+                }
+            }
+        },
+		{
+			"path" : "pages/home/search/search-input",
+			"style": {
+				"animationType": "slide-in-top",
+                "animationDuration": 300
+			}
+		},
+		{
+			"path": "pages/home/detail/message-detail",
+		    "style": {
+				
+			}
+		},
+		{
+			"path": "pages/home/circles/my-circles",
+			"style":{}
+		},
+		{
+			"path": "pages/home/circles/all-circles",
+		    "style": {
+				
+			}	
+		},
+		{
+			"path": "pages/home/circles/circle-detail",
+			"style": {
+				
+			}
+		},
+        {
+            "path" : "pages/dynamic/home/index",
+            "style" : {}
+        },
+        {
+	   "path":"pages/dynamic/findfriend/find",
+	   "style": {
+			"navigationBarTitleText": ""
+	            }
+	},
+         {
+	   "path": "pages/dynamic/issue/dynamic",
+	    "style": {
+			"navigationBarTitleText": ""
+	             }
+	},
+	{
+	   "path": "pages/dynamic/comment/addcomment",
+	   "style": {
+			"navigationBarTitleText": "动态详情"
+		    }
+	},
+	{
+	   "path": "pages/dynamic/info/infopage",
+	   "style": {
+		       "navigationBarTitleText": ""
+	            }
+	},
+        {
+            "path" : "pages/publish/publish",
+            "style" : {}
+        },
+        {
+            "path" : "pages/chat/chat",
+            "style" : {}
+        },
+        {
+            "path" : "pages/mine/mine",
+            "style" : {
+                "navigationBarBackgroundColor" : "#FFE411",
+                "navigationBarTitleText" : ""
+            }
+        },
+        {
+            "path" : "pages/mine/setting",
+            "style" : {
+                "navigationBarTitleText" : "设置"
+            }
+        },{
+            "path" : "pages/mine/user_details",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/mine/user_edit",
+            "style" : {
+				 "navigationBarTitleText" : "编辑个人信息"
+			}
+        },{
+			"path":"pages/mine/image_upload",
+			"style":{
+				"navigationBarTitleText" : "更换头像"
+			}
+		},{
+			"path":"pages/mine/info_edit",
+			"style":{
+				"navigationBarTitleText" : "信息编辑"
+			}
+		}
+    ],
+    "tabBar" : {
+        "color" : "#848484",
+        "selectedColor" : "#404040",
+        "backgroundColor" : "#ffffff",
+        "list" : [
+            {
+                "pagePath" : "pages/home/home",
+                "text" : "首页",
+                "iconPath" : "static/img/tabbar/tab_home.png",
+                "selectedIconPath" : "static/img/tabbar/tab_home_selected.png"
+            },
+            {
+                "pagePath" : "pages/dynamic/home/index",
+                "text" : "动态",
+                "iconPath" : "static/img/tabbar/tab_dynamic.png",
+                "selectedIconPath" : "static/img/tabbar/tab_dynamic_selected.png"
+            },
+            {
+                "pagePath" : "pages/dynamic/issue/dynamic",
+                "iconPath" : "static/img/tabbar/tab_publish.png",
+                "selectedIconPath" : "static/img/tabbar/tab_publish.png"
+            },
+            {
+                "pagePath" : "pages/chat/chat",
+                "text" : "聊天",
+                "iconPath" : "static/img/tabbar/tab_chat.png",
+                "selectedIconPath" : "static/img/tabbar/tab_chat_selected.png"
+            },
+            {
+                "pagePath" : "pages/mine/mine",
+                "text" : "我的",
+                "iconPath" : "static/img/tabbar/tab_mine.png",
+                "selectedIconPath" : "static/img/tabbar/tab_mine_selected.png"
+            }
+        ]
+    },
+    "globalStyle" : {
+        "navigationStyle" : "default",
+        // "navigationBarTitleText": "friend",
+        "navigationBarTextStyle" : "black",
+        "navigationBarBackgroundColor" : "#FFFFFF",
+        "backgroundColor" : "#EFF3F6"
+    },
+	"condition" : { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [
+			{
+				"name": "", //模式名称
+				"path": "", //启动页面，必选
+				"query": "" //启动参数，在页面的onLoad函数里面得到
+			}
+		]
+	}
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<header th:replace="admin/header::header-fragment">
+</header>
+<head>
+    <link rel="stylesheet" th:href="@{/admin/layui-master/dist/css/layui.css}" media="all">
+</head>
+<body class="hold-transition sidebar-mini">
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<div class="wrapper">
+    <!-- 引入页面头header-fragment -->
+    <div th:replace="admin/header::header-nav"></div>
+    <!-- 引入工具栏sidebar-fragment -->
+    <div th:replace="admin/sidebar::sidebar-fragment(${path})"></div>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- Main content -->
+        <div class="content">
+            <div class="container-fluid">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">用户管理</h3>
+                    </div> <!-- /.card-body -->
+                    <table class="layui-hide" id="members_manager" lay-filter="members_manager"></table>
+                </div>
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <!-- 引入页脚footer-fragment -->
+    <div th:replace="admin/footer::footer-fragment"></div>
+</div>
+<script th:src="@{/admin/layui-master/dist/layui.js }" charset="utf-8" ></script>
+<script type="text/html" id="blogtoolbar">
+    <div class="demoTable">
+        <div class="layui-btn-container layui-inline">
+            <button class="layui-btn " lay-event="insert" data-method="addNew" >添加</button>
+            <button class="layui-btn " lay-event="del" >删除</button>
+            <button class="layui-btn " lay-event="update" >编辑</button>
+        </div>
+        搜索ID：
+        <div class="layui-inline">
+            <input class="layui-input" name="id" id="reload_button" autocomplete="off">
+        </div>
+        <div class="layui-btn reloadTable" data-type="reload" id="reload" lay-event="reload">搜索</div>
+    </div>
+</script>
+<script>
+layui.use('table', function(){
+var table = layui.table;
+table.render({
+elem: '#members_manager'
+,toolbar: '#blogtoolbar'
+,url: "/admin/members/list"
+,method:"get"
+,cols: [
+    [
+        {type:'radio'}
+        ,{field:'uid', title:'uid',sort:true}
+        ,{field:'mobile', title:'mobile'}
+        ,{field:'password', title:'password'}
+        ,{field:'perms', title:'perms'}
+        ,{toolbar:'#managers'}
+    ]
+       ]
+,page:true
+,limit:10   //默认的话是10
+,limits:[10,20,30,50]  //数据分页条
+,id:'tableReload'
+});
+/*var $ = layui.$, active = {
+    reload:function () {
+        var reload = $('#reload_button');
+        console.log(reload);
+        table.reload('tableReload',{
+        page: {
+            curr:1
+        }
+        ,where:{
+            key:{
+                id:reload.val()
+            }
+        }
+        },'data');
+        console.log("test");
+    }
+};
+    $('.demoTable .reloadTable').on('click', function(){
+        var type = $(this).data('type');
+        active[type] ? active[type].call(this) : '';
+    });*/
+    table.on('toolbar(members_manager)', function(obj){
+        var data = obj.data;
+        var checkStatus = table.checkStatus('tableReload'); //获取选中行状态
+        switch(obj.event){
+            case 'del':
+                var data = checkStatus.data;  //获取选中行数据
+                var list = data[0],id = list['uid'];
+                layer.confirm('确认删除用户id为'+id+'的用户？',function delete_confirm(index) {
+                    $.ajax({
+                        url: "members/delete",
+                        type:"POST",
+                        data:{"uid":id},
+                        dataType:"json",
+                        success:function () {
+                            console.log("success delete id");
+                            console.log(obj);
+                            table.reload('tableReload',{
+                                where: { //设定异步数据接口的额外参数，任意设
+                                    aaaaaa: 'xxx'
+                                    ,bbb: 'yyy'
+                                    //…
+                                }
+                                ,page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                            });
+                            console.log(index);
+                            layer.close(index);
+                        },
+                        failed:function(){
+                            console.log("failed delete");
+                            layer.confirm('删除失败', function f(index) {
+                                layer.close(index);
+                            })
+                        }
+                    });
+            });
+                break;
+
+            case 'update':
+                console.log('add');
+                layui.use('layer',function () {
+                    var $ = layui.jquery, layer = layui.layer;
+                    console.log('add  use');
+                    var data = checkStatus.data;  //获取选中行数据
+                    var list = data[0];
+                    var id = list['uid'];
+                    layer.open({
+                        type: 1,
+                        number:1,
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['600px', '350px'], //宽高
+                        btn: '确定',
+                        content:
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">mobile</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyMobile" name="title" required  lay-verify="required" placeholder="mobile" autocomplete="off" class="layui-input" value='+list['mobile']+'>'+
+                            '</div>'+'</div>'+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">password</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyPassword" name="title" required  lay-verify="required" placeholder="password" autocomplete="off" class="layui-input" value='+list['password']+'>'+
+                            '</div>'+'</div>'+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">perms</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyPerms" name="title" required  lay-verify="required" placeholder="perms" autocomplete="off" class="layui-input" value='+list['perms']+'>'+
+                            '</div>'+'</div>',
+                        yes: function (index) {
+                            var modifyMobile = $('#modifyMobile').val();
+                            var modifyPassword = $('#modifyPassword').val();
+                            var modifyPerms = $('#modifyPerms').val();
+                            $.ajax({
+                                url: "members/edit",
+                                type:"POST",
+                                data:{"uid":id,"mobile":modifyMobile,"password":modifyPassword,"perms":modifyPerms},
+                                dataType:"json",
+                                success:function () {
+                                    console.log("success modified id");
+                                    table.reload('tableReload',{
+                                        where: { //设定异步数据接口的额外参数，任意设
+                                            aaaaaa: 'xxx'
+                                            ,bbb: 'yyy'
+                                            //…
+                                        }
+                                        ,page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                    });
+                                    layer.close(index);
+                                },
+                                failed:function(){
+                                    console.log("failed delete");
+                                    layer.confirm('删除失败', function f(index) {
+                                        layer.close(index);
+                                    })
+                                }
+                            });
+                        },
+                    });
+
+                });
+                break;
+            case 'insert':
+                console.log('add');
+                layui.use('layer',function () {
+                    var $ = layui.jquery, layer = layui.layer;
+                    console.log('add  use');
+                    layer.open({
+                        type: 1,
+                        number:1,
+                        skin: 'layui-layer-rim', //加上边框
+                        area: ['600px', '350px'], //宽高
+                        btn: '确定',
+                        content:
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">mobile</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyMobile" name="title" required  lay-verify="required" placeholder="mobile" autocomplete="off" class="layui-input" >'+
+                            '</div>'+'</div>'+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">password</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyPassword" name="title" required  lay-verify="required" placeholder="password" autocomplete="off" class="layui-input" >'+
+                            '</div>'+'</div>'+
+                            ' <div class="layui-form-item">'+'<label class="layui-form-label">perms</label>'+' <div class="layui-input-block">'+
+                            ' <input type="text" id="modifyPerms" name="title" required  lay-verify="required" placeholder="perms" autocomplete="off" class="layui-input">'+
+                            '</div>'+'</div>',
+                        yes: function (index) {
+                            var modifyMobile = $('#modifyMobile').val();
+                            var modifyPassword = $('#modifyPassword').val();
+                            var modifyPerms = $('#modifyPerms').val();
+                            $.ajax({
+                                url: "members/insert",
+                                type:"POST",
+                                data:{"mobile":modifyMobile,"password":modifyPassword,"perms":modifyPerms},
+                                dataType:"json",
+                                success:function () {
+                                    console.log("success modified id");
+                                    table.reload('tableReload',{
+                                        where: { //设定异步数据接口的额外参数，任意设
+                                            aaaaaa: 'xxx'
+                                            ,bbb: 'yyy'
+                                            //…
+                                        }
+                                        ,page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                    });
+                                    layer.close(index);
+                                },
+                                failed:function(){
+                                    console.log("failed insert");
+                                    layer.confirm('新增失败', function f(index) {
+                                        layer.close(index);
+                                    })
+                                }
+                            });
+                        },
+                    });
+
+                });
+                break;
+            case 'reload':
+                function reload() {
+                    var reload = $('#reload_button');
+                    table.reload('tableReload',{
+                        page: {
+                            curr:1
+                        }
+                        ,where:{
+                            uid:reload.val()
+                        }
+                        ,url:'/admin/members/search'
+                        ,method:'get'
+                        ,done:function (res) {
+                            if (res['message']==('操作失敗')){
+                                layer.confirm('不存在此用戶', function f(index) {
+                                    layer.close(index);
+                                })
+                            }
+                        }
+                    });
+                }
+                reload();
+        }
+    });
+});
+function addBlog() {
+    window.location.href = "/admin/edit";
+}
+function deleteData() {
+
+}
+</script>
+
+
+
+
+
+<!-- jQuery -->
+<script th:src="@{/admin/plugins/jquery/jquery.min.js}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script th:src="@{/admin/plugins/jQueryUI/jquery-ui.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/admin/dist/js/adminlte.min.js}"></script>
+<!-- jqgrid -->
+<script th:src="@{/admin/plugins/jqgrid-5.3.0/jquery.jqGrid.min.js}"></script>
+<script th:src="@{/admin/plugins/jqgrid-5.3.0/grid.locale-cn.js}"></script>
+<!-- sweetalert -->
+<script th:src="@{/admin/plugins/sweetalert/sweetalert.min.js}"></script>
+<!--<script th:src="@{/admin/dist/js/public.js}"></script>-->
+<script th:src="@{/admin/dist/js/members.js}"></script>
+</body>
+</html>
